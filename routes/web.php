@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\VerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +17,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('users');
 });
+
+Route::get('users', [UserController::class,'index'])->name('users.index');
+Route::get('user/profile/{id}', [UserController::class,'profile'])->name('user.profile');
+Route::post('user/profile', [UserController::class,'updateProfile'])->name('profile.update');
+Route::get('notifications', [NotificationController::class,'index'])->name('notifications.index');
+Route::get('notifications/create', [NotificationController::class,'create'])->name('notifications.create');
+Route::post('notifications', [NotificationController::class,'store'])->name('notifications.store');
+Route::get('read-notification/{id}', [NotificationController::class,'readNotification']);
