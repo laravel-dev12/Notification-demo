@@ -22,7 +22,6 @@ Route::get('/', function () {
 Route::get('/home/{id}', [UserController::class,'home'])->name('user.home');
 
 Route::get('users', [UserController::class,'index'])->name('users.index');
-Route::get('user/profile/{id}', [UserController::class,'profile'])->name('user.profile');
 Route::post('user/profile', [UserController::class,'updateProfile'])->name('profile.update');
 Route::get('notifications', [NotificationController::class,'index'])->name('notifications.index');
 Route::get('notifications/create', [NotificationController::class,'create'])->name('notifications.create');

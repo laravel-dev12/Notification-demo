@@ -14,14 +14,6 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
-    public function profile($id){
-        $user = User::find($id);
-        $userNotifictions = $user->unreadNotifications()->where('data->expiry_date', '>=',date('Y-m-d H:i'));
-        $unreadNotifications = $userNotifictions->count();
-        $notifications = $userNotifictions->get();
-        return view('users.profile', compact('user','unreadNotifications','notifications'));
-    }
-
     public function updateProfile(UserRequest $request){
         $user = User::find($request->user_id);
         $user->update([
@@ -29,11 +21,14 @@ class UserController extends Controller
             'phone'=>$request->phone,
             'notification_switch'=>($request->notification_switch)?'1':'0'
         ]);
-        return redirect()->back();
+        return redirect()->back()->with('message','Profile updated successfully.');
     }
 
     public function home($id){
         $user = User::find($id);
+        if(!$user){
+            abort(404);
+        }
         $userNotifictions = $user->unreadNotifications()->where('data->expiry_date', '>=',date('Y-m-d H:i'));
         $unreadNotifications = $userNotifictions->count();
         $notifications = $userNotifictions->get();

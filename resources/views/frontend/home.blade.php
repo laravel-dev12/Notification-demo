@@ -22,6 +22,13 @@
   <!-- CSS Files -->
   <link id="pagestyle" href="{{asset('assets/frontend/css/material-kit.css?v=3.0.4')}}" rel="stylesheet" />
   <link href="{{ asset('assets/plugins/css/pnotify.custom.min.css')}}" media="all" rel="stylesheet" type="text/css" />
+  <style>
+    .badge{
+      position: absolute;
+      right: 0px;
+      top: -3px;
+    }
+  </style>
 </head>
 
 <body class="blog-author bg-gray-200">
@@ -49,18 +56,31 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-animation dropdown-menu-end dropdown-md dropdown-md-responsive p-3 border-radius-lg mt-0 mt-lg-3" aria-labelledby="dropdownMenuBlocks">
               <div class="d-none d-lg-block">
-                @foreach ($notifications as $notification)
+                @if($unreadNotifications>0)
+                    @foreach ($notifications as $notification)
+                    <li class="nav-item dropdown dropdown-hover dropdown-subitem">
+                    <a class="dropdown-item py-2 ps-3 border-radius-md read" href="#"  data-id="{{$notification->id}}" data-count="{{$unreadNotifications}}">
+                        <div class="w-100 d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">{{$notification->data['type']}}</h6>
+                            <span class="text-sm">{{$notification->data['message']}}</span>
+                        </div>
+                        </div>
+                    </a>
+                    </li>
+                    @endforeach
+                @else
                 <li class="nav-item dropdown dropdown-hover dropdown-subitem">
-                  <a class="dropdown-item py-2 ps-3 border-radius-md read" href="#"  data-id="{{$notification->id}}" data-count="{{$unreadNotifications}}">
-                    <div class="w-100 d-flex align-items-center justify-content-between">
-                      <div>
-                        <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">{{$notification->data['type']}}</h6>
-                        <span class="text-sm">{{$notification->data['message']}}</span>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                @endforeach
+                    <a class="dropdown-item py-2 ps-3 border-radius-md read" href="#">
+                        <div class="w-100 d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0"></h6>
+                            <span class="text-sm">No notifications!</span>
+                        </div>
+                        </div>
+                    </a>
+                    </li>
+                @endif
               </div>
               
             </ul>
@@ -85,8 +105,9 @@
           <div class="col-12 mx-auto">
             <div class="mt-n8 mt-md-n9 text-center">
               <img class="avatar avatar-xxl shadow-xl position-relative z-index-2" src="{{asset('assets/frontend/img/user-noimage.png')}}" alt="bruce" loading="lazy">
+              <h3 class="mb-0 mt-5">Hi, {{$user->name}}</h3>
             </div>
-            <section class="py-lg-5">
+            <section class="py-lg-5">                
                 <div class="container">
                   <div class="row">
                     <div class="col">
@@ -198,21 +219,36 @@
           </div>
         </div>
         <div class="row">
-            @foreach ($notifications as $notification)
-                <div class="col-lg-3 col-sm-6">
-                    <div class="card card-plain">
-                        
+            @if($unreadNotifications>0)
+                @foreach ($notifications as $notification)
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="card card-plain">
+                            
+                            <div class="card-body px-0">
+                            <h5>
+                                <a href="javascript:;" class="text-dark font-weight-bold">{{$notification->data['type']}}</a>
+                            </h5>
+                            <p>
+                                {{$notification->data['message']}}
+                            </p>                
+                            </div>
+                        </div>
+                    </div>   
+                @endforeach
+            @else
+                <div class="col-lg-12 col-sm-12">
+                    <div class="card card-plain">                    
                         <div class="card-body px-0">
                         <h5>
-                            <a href="javascript:;" class="text-dark font-weight-bold">{{$notification->data['type']}}</a>
+                            
                         </h5>
                         <p>
-                            {{$notification->data['message']}}
+                            No notifications!
                         </p>                
                         </div>
                     </div>
-                </div>   
-            @endforeach
+                </div>
+            @endif
         </div>
       </div>
     </section>
@@ -256,34 +292,45 @@
   <script type="text/javascript" src="{{ asset('assets/plugins/js/pnotify.custom.min.js')}}"></script>
 
     <script>    
-        $(".read").on("click",function(){
-        
-        var notifcation_id=$(this).data("id");
-        var count=$(this).data("count");
-        $.ajax({
-            type: "GET",
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            url: "{{ url('read-notification') }}/"+notifcation_id,
-            data: "id="+notifcation_id,
-            success: function(data){
-            if(data.success == 1){
-                $('.count').html(count-1);
-            new PNotify({
-                    title: 'Success!',
-                    text: "Notification marked as read!",
-                    type: 'success'
-                });
-            }else{
-                new PNotify({
-                    title: 'Failed!',
-                    text: "Oops! Something went wrong, please try again.",
-                    type: 'error'
-                });
-            }
-            },
-            dataType: "json"
+        $(".read").on("click",function(){        
+            var notifcation_id=$(this).data("id");
+            var count=$(this).data("count");
+            $.ajax({
+                type: "GET",
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                url: "{{ url('read-notification') }}/"+notifcation_id,
+                data: "id="+notifcation_id,
+                success: function(data){
+                    if(data.success == 1){
+                        if(count == 1){
+                            $('.count').remove();
+                        }else{
+                            $('.count').html(count-1);
+                        }
+                        new PNotify({
+                            title: 'Success!',
+                            text: "Notification marked as read!",
+                            type: 'success'
+                        });
+                    }else{
+                        new PNotify({
+                            title: 'Failed!',
+                            text: "Oops! Something went wrong, please try again.",
+                            type: 'error'
+                        });
+                    }
+                },
+                dataType: "json"
+            });
         });
+
+        @if(Session::get('message'))
+        new PNotify({
+            title: 'Success!',
+            text: "{{Session::get('message')}}",
+            type: 'success'
         });
+        @endif
     </script>
 </body>
 
