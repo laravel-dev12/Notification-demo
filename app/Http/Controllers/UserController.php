@@ -23,15 +23,21 @@ class UserController extends Controller
     }
 
     public function updateProfile(UserRequest $request){
-        // dd($request->all());
-
         $user = User::find($request->user_id);
         $user->update([
             'email'=>$request->email,
             'phone'=>$request->phone,
             'notification_switch'=>($request->notification_switch)?'1':'0'
         ]);
-        return redirect('users');
+        return redirect()->back();
+    }
+
+    public function home($id){
+        $user = User::find($id);
+        $userNotifictions = $user->unreadNotifications()->where('data->expiry_date', '>=',date('Y-m-d H:i'));
+        $unreadNotifications = $userNotifictions->count();
+        $notifications = $userNotifictions->get();
+        return view('frontend.home', compact('user','unreadNotifications','notifications'));
     }
 
 }

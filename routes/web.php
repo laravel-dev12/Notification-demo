@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\VerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +18,8 @@ use App\Http\Controllers\VerificationController;
 Route::get('/', function () {
     return redirect('users');
 });
+
+Route::get('/home/{id}', [UserController::class,'home'])->name('user.home');
 
 Route::get('users', [UserController::class,'index'])->name('users.index');
 Route::get('user/profile/{id}', [UserController::class,'profile'])->name('user.profile');

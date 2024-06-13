@@ -28,7 +28,7 @@
             @foreach($users as $row)
               <tr>                
                 <td>
-                  <a href="{{route('user.profile',$row->id)}}">
+                  <a href="{{route('user.home',$row->id)}}">
                     {!! $row->name !!}
                   </a>
                 </td>
